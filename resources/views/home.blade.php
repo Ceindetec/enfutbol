@@ -50,9 +50,9 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li class="active"><a href="#" onclick="return false;" data-nav-section="home"><span>Inicio</span></a></li>
                         <li><a href="{{route("buscar")}}"  ><span>Buscar</span></a></li>
-                        <li class="hidden-md"><a href="#" onclick="return false;" data-nav-section="services"><span>Servicios</span></a></li>
-                        <li><a href="#" onclick="return false;" data-nav-section="about"><span>About</span></a></li>
-                        <li><a href="#" onclick="return false;" data-nav-section="contact"><span>contacto</span></a></li>
+                        {{--<li class="hidden-md"><a href="#" onclick="return false;" data-nav-section="services"><span>Servicios</span></a></li>--}}
+                        <li><a href="#" onclick="return false;" data-nav-section="about"><span>Aliados</span></a></li>
+                        <li><a href="#" onclick="return false;" data-nav-section="contact"><span>Contacto</span></a></li>
 
                         @if(Auth::guest())
                             <li><a href="{{route('myLoginModal')}}"   data-modal=""  ><span>Iniciar Sesión</span></a></li>
@@ -173,8 +173,8 @@
 
                         <i class="fh5co-intro-icon icon-people"></i>
                         <h2>Jugador</h2>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                        <p><a href="#" class="btn btn-primary">Get In Touch</a></p>
+                        <p>Encuentra tu lugar juego ideal a la fecha y hora que lo necesites, <b>regístrate</b>, explora las mejores canchas de la ciudad, <b>reserva</b> mediante nuestro sistema de <b>Tokens</b> y disfruta!</p>
+                        {{--<p><a href="#" class="btn btn-primary">Get In Touch</a></p>--}}
                     </div>
                 </div>
                 <div class="fh5co-block to-animate" style="background-image: url({{URL::to('images/img_8.jpg')}});">
@@ -184,8 +184,8 @@
                         <i class="fh5co-intro-icon fa fa-user" aria-hidden="true"></i>
                         {{--<i class="fh5co-intro-icon icon-wrench"></i>--}}
                         <h2>Administrador</h2>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                        <p><a href="#" class="btn btn-primary">Click Me</a></p>
+                        <p>Consulta y administra la disponibilidad de tus canchas, actualiza la información y promociones de tu sitio, brinda membresías <b>(Token)</b> a tus clientes frecuentes.</p>
+                        {{--<p><a href="#" class="btn btn-primary">Click Me</a></p>--}}
                     </div>
                 </div>
                 <div class="fh5co-block to-animate" style="background-image: url({{URL::to('images/img_9.jpg')}});">
@@ -195,8 +195,8 @@
                         <i class="fh5co-intro-icon fa fa-user-secret" aria-hidden="true"></i>
                         {{--<i class="fh5co-intro-icon icon-rocket"></i>--}}
                         <h2>Entrenador</h2>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                        <p><a href="#" class="btn btn-primary">Why Us?</a></p>
+                        <p><b>Regístrate</b>, Solicita membresías <b>(Token)</b> VIP en los sitios de tu preferencia, programa los horarios para tus entrenamientos, <b>reserva</b> tantas canchas como necesites.</p>
+                        {{--<p><a href="#" class="btn btn-primary">Why Us?</a></p>--}}
                     </div>
                 </div>
             </div>
@@ -479,10 +479,10 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12 section-heading text-center">
-                    <h2 class="to-animate">About</h2>
+                    <h2 class="to-animate">Aliados</h2>
                     <div class="row">
                         <div class="col-md-8 col-md-offset-2 subtext to-animate">
-                            <h3>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</h3>
+                            <h3>Pauta con nosotros y consigue un espacio para tu marca o empresa en nuestra página principal, Que esperas: <a href="#fh5co-contact"><b>Contactanos!</b></a></h3>
                         </div>
                     </div>
                 </div>
@@ -491,9 +491,9 @@
                 <div class="col-md-4">
                     <div class="fh5co-person text-center to-animate">
                         <figure><img src="images/cgh.png" alt="Image" style="width: 120px;height: 120px; "></figure>
-                        <h3>Jean Smith</h3>
-                        <span class="fh5co-position">Web Designer</span>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts</p>
+                        <h3>Tu Empresa</h3>
+                        <span class="fh5co-position">Patrocinador</span>
+                        <p>Espacio publicitario disponible para tu marca empresa, consigue que mas personas conozcan tus actividades, productos y servicios.</p>
                         <ul class="social social-circle">
                             <li><a href="#"><i class="icon-twitter"></i></a></li>
                             <li><a href="#"><i class="icon-facebook"></i></a></li>
@@ -504,22 +504,22 @@
                 <div class="col-md-4">
                     <div class="fh5co-person text-center to-animate">
                         <figure><img src="images/ceindetec.jpg" alt="Image" style="width: 120px;height: 120px; "></figure>
-                        <h3>Rob Smith</h3>
-                        <span class="fh5co-position">Web Developer</span>
-                        <p>La Corporación CEINDETEC Llanos es una Entidad Sin Ánimo de Lucro dedicada al fomento de la Investigación y el Desarrollo Tecnológico. Tiene como objetivo contribuir a la apropiación social de la Ciencia y la Tecnología, y al cambio hacia una cultura basada en el Conocimiento y la Investigación, que incorpore el Desarrollo Tecnológico a la cotidianidad y a los procesos productivos dentro de un marco de desarrollo sostenible.</p>
+                        <h3>CEINDETEC Llanos</h3>
+                        <span class="fh5co-position">Villavicencio - Meta</span>
+                        <p>El Centro de Investigación y Desarrollo Tecnológico de los Llanos, es una entidad sin ánimo de lucro dedicada al fomento de la <b>Investigación</b> y el <b>Desarrollo Tecnológico</b> en el Meta.</p>
                         <ul class="social social-circle">
-                            <li><a href="#"><i class="icon-twitter"></i></a></li>
-                            <li><a href="#"><i class="icon-facebook"></i></a></li>
-                            <li><a href="#"><i class="icon-github"></i></a></li>
+                            <li><a href="https://twitter.com/ceindetec" target="_blank"><i class="icon-twitter"></i></a></li>
+                            <li><a href="https://www.facebook.com/CEINDETEC/" target="_blank"><i class="icon-facebook"></i></a></li>
+                            <li><a href="http://ceindetec.org.co/" target="_blank"><i class="icon-globe"></i></a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="fh5co-person text-center to-animate">
                         <figure><img src="images/smart.png" alt="Image" style="width: 120px;height: 120px; "></figure>
-                        <h3>Larry Ben</h3>px
-                        <span class="fh5co-position">Web Designer</span>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts</p>
+                        <h3>Tu marca</h3>
+                        <span class="fh5co-position">Patrocinador</span>
+                        <p>Espacio publicitario disponible para tu marca empresa, consigue que mas personas conozcan tus actividades, productos y servicios.</p>
                         <ul class="social social-circle">
                             <li><a href="#"><i class="icon-twitter"></i></a></li>
                             <li><a href="#"><i class="icon-facebook"></i></a></li>
@@ -531,7 +531,7 @@
         </div>
     </section>
 
-    <section id="fh5co-counters" style="background-image: url({{URL::to('images/full_image_1.jpg')}});" data-stellar-background-ratio="0.5">
+{{--    <section id="fh5co-counters" style="background-image: url({{URL::to('images/full_image_1.jpg')}});" data-stellar-background-ratio="0.5">
         <div class="fh5co-overlay"></div>
         <div class="container">
             <div class="row">
@@ -542,7 +542,7 @@
             <div class="row">
                 <div class="col-md-3 col-sm-6 col-xs-12">
                     <div class="fh5co-counter to-animate">
-                        {{--<i class="fh5co-counter-icon icon-briefcase to-animate-2"></i>--}}
+                        --}}{{--<i class="fh5co-counter-icon icon-briefcase to-animate-2"></i>--}}{{--
                         <i class="fh5co-counter-icon fa fa-map-marker to-animate-2" aria-hidden="true"></i>
                         <span class="fh5co-counter-number js-counter" data-from="0" data-to="89" data-speed="5000" data-refresh-interval="50">89</span>
                         <span class="fh5co-counter-label">Sitios</span>
@@ -550,7 +550,7 @@
                 </div>
                 <div class="col-md-3 col-sm-6 col-xs-12">
                     <div class="fh5co-counter to-animate">
-                        {{--<i class="fh5co-counter-icon icon-code to-animate-2"></i>--}}
+                        --}}{{--<i class="fh5co-counter-icon icon-code to-animate-2"></i>--}}{{--
                         <i class=" fh5co-counter-icon fa fa-futbol-o to-animate-2" aria-hidden="true"></i>
                         <span class="fh5co-counter-number js-counter" data-from="0" data-to="2343409" data-speed="5000" data-refresh-interval="50">2343409</span>
                         <span class="fh5co-counter-label">Canchas</span>
@@ -572,38 +572,38 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section>--}}
 
     <section id="fh5co-contact" data-section="contact">
         <div class="container">
             <div class="row">
                 <div class="col-md-12 section-heading text-center">
-                    <h2 class="to-animate">Get In Touch</h2>
+                    <h2 class="to-animate">Contacto</h2>
                     <div class="row">
                         <div class="col-md-8 col-md-offset-2 subtext to-animate">
-                            <h3>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</h3>
+                            <h3>¿Tienes dudas? ¿deseas información adicional? escríbenos</h3>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row row-bottom-padded-md">
                 <div class="col-md-6 to-animate">
-                    <h3>Contact Info</h3>
+                    <h3>Información de Contacto</h3>
                     <ul class="fh5co-contact-info">
                         <li class="fh5co-contact-address ">
                             <i class="icon-home"></i>
-                            5555 Love Paradise 56 New Clity 5655, <br>Excel Tower United Kingdom
+                           Carrera 19c No. 19 - 20
                         </li>
-                        <li><i class="icon-phone"></i> (123) 465-6789</li>
+                        <li><i class="icon-phone"></i> 311 807 3599 - 313 858 5565</li>
                         <li><i class="icon-envelope"></i>informacion.enfutbol.co@gmail.com</li>
-                        <li><i class="icon-globe"></i> <a href="http://freehtml5.co/" target="_blank">freehtml5.co</a></li>
+                        <li><i class="icon-globe"></i> <a href="http://ceindetec.org.co/" target="_blank">ceindetec.org.co</a></li>
                     </ul>
                 </div>
 
                 <div class="col-md-6 to-animate">
 
                     {!!Form::open(['id'=>'formContacto','class'=>'form-horizontal'])!!}
-                    <h3>Contact Form</h3>
+                    <h3>Formulario de Contacto</h3>
                     <div class="form-group ">
                         <label for="name" class="sr-only">Name</label>
                         <input id="name" name="nombre" class="form-control" placeholder="Nombre" type="text" required>
