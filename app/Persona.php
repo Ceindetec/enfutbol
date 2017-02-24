@@ -12,10 +12,13 @@ class Persona extends Model
     
     public function getUsuario()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\User','user_id');
     }
-    
-    
-    
+
+    public function getMunicipio()
+    {
+        return $this->belongsTo('App\Municipio', 'id_municipio');
+    }
+
 
 }

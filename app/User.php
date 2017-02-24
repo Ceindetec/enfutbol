@@ -39,24 +39,22 @@ class User extends Model implements AuthenticatableContract,
      */
     protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * @return array
-     */
+
     public function getPersona()
     {
         return $this->hasOne('App\Persona');
+    }
+
+    public function getPagoServiTorneo()
+    {
+        return $this->hasOne('App\PagosTorneo');
     }
 
     public function getSitio()
     {
         return $this->hasOne('App\Sitio','id_usuario');
     }
-    
-    /**
-     * esta funcion solo debe ser usada para obtener los tokens de un usuario administrador
-     * 
-     * @return Object_ token
-     */
+
     public function getToken()
     {
         return $this->hasOne('App\Token','id_usuario');
@@ -70,6 +68,14 @@ class User extends Model implements AuthenticatableContract,
         $persona = Persona::where('identificacion',$this->persona)->first()->nombres;
         return $persona;
     }*/
+
+    /**
+     * @return Object_ token
+     */
+    public function getTorneos()
+    {
+        return $this->hasMany('App\Torneo', 'usuario_id');
+    }
     
     
 

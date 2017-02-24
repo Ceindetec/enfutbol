@@ -62,7 +62,7 @@ class UsuariosController extends Controller
 
             $marker = array();
             $marker['position'] = $sitio->geolocalizacion;
-            $marker['infowindow_content'] = '<h3 style="margin-bottom: 10px"> ' . $sitio->nombre . '</h3> Horario: Lunes a viernes 06:00 a 22:00 ';
+            $marker['infowindow_content'] = '<h3 style="margin-bottom: 10px"> <a href="'.route("getSitio",$sitio->id).'">' . $sitio->nombre . '</a> </h3> te esperamos, ven disfruta y juega';
             $marker['icon'] = 'dist/img/taggris1.png';
             \Gmaps::add_marker($marker);
 
@@ -124,11 +124,11 @@ class UsuariosController extends Controller
                 //Auth::login($user);
                 $data["tipo"]="success";
                 $data["tmsj"]="Perfecto";
-                $data["msj"]=$user->user.", tu cuenta fue activada satisfactoriamente. <strong>Inicia sesión</strong> y reserva las mejores canchas de la ciudad";
+                $data["msj"]=$user->user.", tu cuenta se ha activodo con exito. <strong><a href='".route('myLoginModal')."'   data-modal=''  ><span> <b>Inicia Sesión</b> </span></a></strong>, completa tu información personal y reserva las mejores canchas de la ciudad.";
             }else{
                 $data["tipo"]="warning";
                 $data["tmsj"]="Umm";
-                $data["msj"]=$user->user.", tu cuenta ya se encontraba activa. <strong>Inicia sesión</strong> y reserva las mejores canchas de la ciudad";
+                $data["msj"]=$user->user.", tu cuenta ya se encontraba activa. <strong>Inicia sesión</strong>, completa tu información personal y reserva las mejores canchas de la ciudad.";
 
             }
             return view('jugador.activarUser', $data);
@@ -649,8 +649,19 @@ class UsuariosController extends Controller
     public function completarRegistro(Request $request){
 
         $persona = Auth::user()->getPersona;
-        $persona->update($request->all());
-        return "exito";
+
+//falta cuadrar no duplicado de cedula
+
+        $personaIdExiste = Persona::where("identificacion",$request->identificacion)->first();
+
+        if($personaIdExiste==null){
+            $persona->update($request->all());
+
+            return ["bandera"=>true];
+        }else{
+            return ["bandera"=>false, "mensaje"=>"ya existe una persona registrada con este número de cedula. Si no eres el propietario de dicha cuenta, envianos un correo con tus datos a <b>informacion.enfutbol.co@gmail.com</b>, validaremos tu identidad y continuaremos con tu registro. disculpa las molestias"];
+        }
+
 
     }
     

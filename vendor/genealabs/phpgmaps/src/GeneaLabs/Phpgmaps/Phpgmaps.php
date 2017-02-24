@@ -78,7 +78,7 @@ class Phpgmaps
     public $panoramioUser = '';                        // Restrict the set of Panoramio photos shown to those matching a particular user
     public $region = '';                        // Country code top-level domain (eg "uk") within which to search. Useful if supplying addresses rather than lat/longs
     public $scaleControlPosition = '';                        // The position of the Scale control, eg. 'BOTTOM_RIGHT'
-    public $scrollwheel = true;                        // If set to FALSE will disable zooming by scrolling of the mouse wheel
+    public $scrollwheel = false;                        // If set to FALSE will disable zooming by scrolling of the mouse wheel
     public $sensor = false;                    // Set to TRUE if being used on a device that can detect a users location
     public $streetViewAddressControl = true;                        // If set to FALSE will hide the Address control
     public $streetViewAddressPosition = '';                        // The position of the Address control, eg. 'BOTTOM'

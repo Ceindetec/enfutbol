@@ -28,22 +28,22 @@ Route::group(['middleware' => ['auth', 'superAdmin']], function () {
     Route::post('addCancha','SuperAdminController@addCancha')->name('addCancha');
     Route::post('removeCancha','SuperAdminController@removeCancha')->name('removeCancha');
     Route::post('cambiarTipoCancha','SuperAdminController@cambiarTipoCancha')->name('cambiarTipoCancha');
-    
 
-    
+
     Route::get('sitiosRegistrados','SuperAdminController@sitiosRegistrados')->name('sitiosRegistrados');
     Route::get('modalHistorialPagos/{id}','SuperAdminController@modalHistorialPagos')->name('modalHistorialPagos');
     Route::get('modalDetallesSitio/{id}','SuperAdminController@modalDetallesSitio')->name('modalDetallesSitio');
     Route::get('modalEditarCanchas/{id}','SuperAdminController@modalEditarCanchas')->name('modalEditarCanchas');
     Route::post('addPago','SuperAdminController@addPago')->name('addPago');
-    
+    Route::post('pagosTorneoUser','SuperAdminController@pagosTorneoUser')->name('pagosTorneoUser');
+
+    Route::get('superTorneos','SuperAdminController@superTorneos')->name('superTorneos');
+
+    Route::get('autoCompleUser','SuperAdminController@autoCompleUser')->name('autoCompleUser');
+
+
+
 });
-
-
-
-
-
-
 
 Route::group(['middleware' => ['auth', 'administrador']], function () {
     Route::get('administrador','AdministradorController@index')->name('administrador');
@@ -72,21 +72,36 @@ Route::group(['middleware' => ['auth', 'administrador']], function () {
     Route::post('socialUpdate', 'AdministradorController@updateRedes')->name('updateRedes');
     Route::get('disponibilidades','AdministradorController@planilla')->name('planilla');
     Route::post('getPlanillas','AdministradorController@getPlanillas')->name('getPlanillas');
+
+
 });
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('perfilUsuario','UsuariosController@perfilUsuario')->name('perfilUsuario');
 
+    Route::post('solicidarPago','TorneosController@solicidarPago')->name('solicidarPago');
 
 
+    Route::get('adminTorneos','TorneosController@index')->name('adminTorneos');
+    Route::get('nuevoTorneo','TorneosController@torneoNuevo')->name('torneoNuevo');
+    Route::post('insertTorneo','TorneosController@insertTorneo')->name('insertTorneo');
+    Route::post('deleteTorneo','TorneosController@deleteTorneo')->name('deleteTorneo');
+    Route::get('adminTorneo/{id}','TorneosController@adminTorneo')->name('adminTorneo');
+    Route::post('updateTorneo','TorneosController@updateTorneo')->name('updateTorneo');
+
+    Route::post('aceptarSolicitud','TorneosController@aceptarSolicitud')->name('aceptarSolicitud');
+    Route::post('rechazarSolicitud','TorneosController@rechazarSolicitud')->name('rechazarSolicitud');
+
+    Route::post('iniciarTorneo','TorneosController@iniciarTorneo')->name('iniciarTorneo');
+
+    Route::get('adminEquipo/{id}','TorneosController@adminEquipo')->name('adminEquipo');
+    //rutas para los torneos
+    Route::get('adminTorneos/fase/{torneo_id}','TorneosController@adminFases')->name('adminFases');
 
 });
 
 
-
-
 Route::group(['middleware' => ['auth', 'jugador']], function () {
-
 
     Route::post('validarPassword','UsuariosController@validarPassword')->name('validarPassword');
     Route::post('cambiarPassword','UsuariosController@cambiarPassword')->name('cambiarPassword');
@@ -95,12 +110,7 @@ Route::group(['middleware' => ['auth', 'jugador']], function () {
     Route::get('misReservas','UsuariosController@misReservas')->name('misReservas');
     Route::post('cancelReservaUser', 'UsuariosController@cancelReservaUser')->name('cancelReservaUser');
 
-    
-
-
 });
-
-
 
 Route::get('/','UsuariosController@index')->name('home');
 Route::get('buscar','UsuariosController@buscar')->name('buscar');
@@ -111,11 +121,7 @@ Route::post('disponibilidades','UsuariosController@disponibilidad')->name('dispo
 Route::get('getInfoToken/{id_sitio}','UsuariosController@getInfoToken')->name('getInfoToken');
 Route::post('addNuevaReservaUsuario','UsuariosController@addNuevaReservaUsuario')->name('addNuevaReservaUsuario');
 
-
-
 Route::post('mail','MailController@enviar')->name('enviar');
-
-
 
 
 Route::get('password/email', 'Auth\PasswordController@getEmail')->name('getEmail');
@@ -125,13 +131,9 @@ Route::get('password/reset/{token}', 'Auth\PasswordController@getReset')->name('
 Route::post('password/reset/{token}', 'Auth\PasswordController@postReset')->name('postReset');
 
 
-
-
 Route::post('municipios','UsuariosController@getMunicipios')->name('municipios');
 Route::get('registro', 'UsuariosController@registrarJugador')->name('registrarJugador');
 Route::post('addJugador','UsuariosController@addJugador')->name('addJugador');
-
-
 
 
 Route::get('mapas', 'UsuariosController@geoLocalizacionMover')->name('geoLocalizacionMover');
@@ -142,7 +144,6 @@ Route::get('activaruser/{email}', 'UsuariosController@activarUser')->name('activ
 
 
 Route::get("prueba", function (){
-
 
     dd(\Auth::user());
 
@@ -180,4 +181,3 @@ Route::get("prueba", function (){
     dd($map);
 
 });*/
-
