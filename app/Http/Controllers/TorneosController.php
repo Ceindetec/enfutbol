@@ -2,9 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Codigos_torneo;
 use App\Departamento;
+use App\Equipo;
 use App\Equipos_torneo;
+use App\Escudo;
 use App\Fases_torneo;
+use App\Integrante;
+use App\Jugador;
+use App\Persona;
+use App\PesonasExterna;
+use App\Plantilla;
 use App\SolicitudPago;
 use App\Torneo;
 use App\User;
@@ -14,6 +22,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Expr\Array_;
+use spec\PhpSpec\CodeGenerator\Generator\NewFileNotifyingGeneratorSpec;
 
 class TorneosController extends Controller
 {
@@ -25,28 +35,34 @@ class TorneosController extends Controller
     public function index()
     {
         $hoy = Carbon::today();
-        $user = Auth::user();
-        if($user->getPagoServiTorneo){
 
-            if($user->getPagoServiTorneo->estado=="X"){
-                $torneos = $user->getTorneos;
-                foreach ($torneos as $torneo){
-                    $torneo->getEquipos;
+        if(Auth::guest()){
+            return view('torneos.servicioTorneo');
+        }else{
+            $user = Auth::user();
+            if($user->getPagoServiTorneo){
+
+                if($user->getPagoServiTorneo->estado=="X"){
+                    $torneos = $user->getTorneos;
+                    foreach ($torneos as $torneo){
+                        $torneo->getEquipos;
+                    }
+
+                    $data['torneos'] = $torneos;
+                }else{
+                    $data['torneos'] = [];
                 }
-
-                $data['torneos'] = $torneos;
-            }else{
-                $data['torneos'] = [];
-            }
-            $data["servicio"]= $user->getPagoServiTorneo;
-            $fecha_vence= Carbon::parse($user->getPagoServiTorneo->fecha_fin);
-            $data["dias"]=$hoy->diffInDays($fecha_vence, false);
+                $data["servicio"]= $user->getPagoServiTorneo;
+                $fecha_vence= Carbon::parse($user->getPagoServiTorneo->fecha_fin);
+                $data["dias"]=$hoy->diffInDays($fecha_vence, false);
 //            $data["hoy"]=$hoy;
 //            $data["vence"]=$fecha_vence;
 //            dd($data);
-            return view('torneos.index', $data);
-        }else{
-            return view('torneos.servicioTorneo');
+                return view('torneos.index', $data);
+            }else{
+                return view('torneos.servicioTorneo');
+            }
+
         }
 
     }
@@ -171,7 +187,7 @@ class TorneosController extends Controller
                         }
 
                         $data['torneo'] = $torneo;
-
+//                        dd($data);
                         return view('torneos.torneo', $data);
                     }
                     else{
@@ -293,7 +309,7 @@ class TorneosController extends Controller
 
 
     /**
-     * Remove the specified resource from storage.
+     * Permite al administrador del torneo acepatr la solicitud de inscripcion de un equipo a uno de sus torneos
      *
      * @return array
      */
@@ -323,6 +339,11 @@ class TorneosController extends Controller
         }
     }
 
+    /**
+     * Permite al administrador del torneo rechazar la solicitud de inscripcion de un equipo a uno de sus torneos
+     *
+     * @return array
+     */
     public function rechazarSolicitud(Request $request){
         $solicitud = Equipos_torneo::find($request->solicitud);
         if($solicitud != null){
@@ -349,16 +370,37 @@ class TorneosController extends Controller
         }
     }
 
+    /**
+     * Permite al administrador del torneo realizar modificaciones sobre un equipo participante en uno de sus torneos
+     *
+     * @return array
+     */
     public function adminEquipo($id){
         $equipoTorneo = Equipos_torneo::find($id);
         if($equipoTorneo != null){
-            $equipoTorneo->getEquipo;
-            $data['equipo'] = $equipoTorneo;
-            return view('torneos.editEquipo', $data);
+            $data['equipo'] = $equipoTorneo->getEquipo;
+            $data['torneo'] = $equipoTorneo->getTorneo;
+            $usuario = Auth::user();
+            if($data['torneo']->usuario_id == $usuario->id || $data['equipo']->capitan_id == $usuario->id){
+                $data['genero'] = ($data['torneo']->genero == 'M')?'Masculino':'Femenino';
+
+                $arrayDepartamento = array();
+                $departamentos = Departamento::select('id', 'departamento')->get();
+                foreach ($departamentos as $departamento) {
+                    $arrayDepartamento[$departamento->id] = $departamento->departamento;
+                }
+                $data["arrayDepartamento"] = $arrayDepartamento;
+
+                if($usuario->rol == 'jugador')
+                    return view('torneos.miEquipo', $data);
+                else
+                    return view('torneos.editEquipo', $data);
+            }
+            else
+                return redirect()->back();
         }
-        else{
+        else
             return redirect()->back();
-        }
     }
 
     public function iniciarTorneo(Request $request)
@@ -413,4 +455,596 @@ class TorneosController extends Controller
             return ['estado' => false,'mensaje' => "Ha ocurrido el siguiente error: " . $e->getMessage()];
         }
     }
+
+    public function adminPlantillas()
+    {
+        $user = Auth::user();
+
+        $data['plantillas'] = $user->getPlantillas;
+
+//        dd($data);
+
+        return view('torneos.plantillas', $data);
+    }
+
+
+        /**
+         * .
+         *
+         * @return array
+         */
+        public function nuevaPlantilla (Request $request){
+            $data= array();
+            $totalPlantillas = Auth::user()->getPlantillas->count();
+            if($totalPlantillas<5){
+                $plantilla = new Plantilla($request->all());
+                $plantilla->usuario_id= Auth::user()->id;
+                $plantilla->save();
+                $data["bandera"]= true;
+                $data["mensaje"]="exito";
+                $data["nombre"]= (strlen($plantilla->nombre) <= 10)?$plantilla->nombre:substr($plantilla->nombre, 0, 10).'...';
+                $data["genero"]= $plantilla->genero;
+                $data["id"]=$plantilla->id;
+                $data["totalPlantillas"] = $totalPlantillas;
+            }
+
+            return $data;
+        }
+
+    public function getPlantilla(Request $request)
+    {
+        $plantilla = Plantilla::find($request->plantilla);
+        if($plantilla != null && $plantilla->usuario_id==\Auth::user()->id){
+            $data['plantilla'] = $plantilla;
+            return response()->json(view('torneos.editPlantilla', $data)->render());
+        }
+        else{
+            return 'error';
+        }
+    }
+
+    public function addJugadorPlanilla(Request $request)
+    {
+        $usuario = User::find($request->usuario_id);
+        $plantilla = Plantilla::find($request->plantilla);
+        if($usuario != null && $plantilla!= null && $plantilla->usuario_id==\Auth::user()->id){
+            $añadir = true;
+            foreach($plantilla->getJugadores as $jugador){
+                if($jugador->usuario_id == $usuario->id){
+                    $añadir = false;
+                    break;
+                }
+            }
+            if($añadir){
+                DB::beginTransaction();
+                try{
+                    $integrante = new Integrante();
+                    $integrante->usuario_id = $usuario->id;
+                    $integrante->plantilla_id = $plantilla->id;
+                    $integrante->save();
+                    DB::commit();
+                    $integrante->getUsuario->getPersona;
+                    return ['estado' => true, 'mensaje' => $integrante];
+                }
+                catch(\Exception $e){
+                    DB::rollBack();
+                    return ['estado' => false,'mensaje' => "Lo sentimos, ha ocurrido el siguiente error: " . $e->getMessage()];
+                }
+            }
+            else{
+                return ['estado' => false,'mensaje' => "El usuario seleccionado ya existe en esta plantilla, por favor ingresa uno diferente."];
+            }
+        }
+        else{
+            return ['estado' => false,'mensaje' => "No tienes permisos para completar esta acción."];
+        }
+    }
+
+    public function delJugadorPlanilla(Request $request)
+    {
+        $participante = Integrante::find($request->jugador);
+        $plantilla = Plantilla::find($request->plantilla);
+        if($participante != null && $plantilla != null && $plantilla->usuario_id==\Auth::user()->id && $participante->plantilla_id==$plantilla->id){
+            DB::beginTransaction();
+            try{
+                $participante->delete();
+                DB::commit();
+                return ['estado' => true];
+            }
+            catch(\Exception $e){
+                DB::rollBack();
+                return ['estado' => false,'mensaje' => "Lo sentimos, ha ocurrido el siguiente error: " . $e->getMessage()];
+            }
+        }
+        else{
+            return ['estado' => false,'mensaje' => "No tienes permisos para completar esta acción."];
+        }
+    }
+
+        /**
+         * funcion encargada de lanzar la vista para buscar los torneos en el sistema.
+         *
+         * @return array
+         */
+        public function buscarTorneos(Request $request){
+            $data = array();
+            $data["mistorneos"]=[];
+            if(!Auth::guest()){
+                $jugador = new Jugador();
+                $torneos = $jugador->getMisTorneos(Auth::user()->getPersona->identificacion);
+                $arrayMisTorneos = array();
+
+                foreach ($torneos as $torneo){
+                    $objTorneo = Torneo::find($torneo->id);
+                    $objTorneo->municipio=$objTorneo->getMunicipio->municipio;
+                    $arrayMisTorneos[] = $objTorneo;
+                }
+                $data["mistorneos"]=$arrayMisTorneos;
+            }
+            if($request->nombre!=null)
+                $nombre = $request->nombre;
+            else
+                $nombre = "";
+            if($request->estado!=null)
+                $estado = $request->estado;
+            else
+                $estado = "A";
+
+                $torneos = Torneo::where("nombre", "like","%" . $nombre. "%")->where("estado",$estado)->paginate(8);
+
+            //dd($request->estado);
+
+            $data["torneos"] = $torneos;
+
+            if($request->ajax()){
+                return response()->json(view('torneos.torneos', $data)->render());
+            }
+            return view('torneos.buscar', $data);
+        }
+    /**
+     * funcion encargada de mostrar los detalles de los torneos
+     *
+     * @return array
+     */
+    public function detalleTorneo($torneo){
+        $torneo = Torneo::find($torneo);
+        $torneos = Torneo::where("estado","A")->paginate(4);
+        $data = array();
+
+        if($torneo){
+            $data["torneo"] = $torneo;
+            $data["torneos"] = $torneos;
+            if(!Auth::guest()) {
+                $jugador = new Jugador();
+                $data["participo"] = $jugador->participaEnTorneo($torneo->id, Auth::user()->getPersona->identificacion);
+                $usuario = new User();
+                $data['capitan'] = $usuario->capitanEnTorneo($torneo->id, Auth::user()->id);
+            }
+            return view('torneos.detalleTorneo',$data);
+        }else{
+            return redirect()->back();
+        }
+
+
+    }
+
+    /**
+     * funcion para landar la vista para inscribir un equipo a un torneo.
+     *
+     * @return array
+     */
+    public function inscribeTuEquipo (Request $request){
+//        dd($request->torneo);
+        if($request->torneo){
+            $data["torneo"]=$torneo = Torneo::find($request->torneo);
+        }else{
+            $data["torneo"]=[];
+        }
+        $data["planillas"] = Plantilla::where("usuario_id",Auth::user()->id)->get();
+
+        $arrayDepartamento = array();
+        $departamentos = Departamento::select('id', 'departamento')->get();
+
+        foreach ($departamentos as $departamento) {
+            $arrayDepartamento[$departamento->id] = $departamento->departamento;
+        }
+
+        $data["arrayDepartamento"] = $arrayDepartamento;
+
+       // dd($data);
+        return view('torneos.inscribeTuEquipo', $data);
+    }
+
+
+    /**
+     * Funcion encargada de permitir aañadir personas externas al sistema
+     *
+     * @return array
+     */
+    public function addPersonaExterna(Request $request){
+        DB::beginTransaction();
+        try {
+            $personaExterna = new PesonasExterna($request->all());
+            $personaExterna->save();
+            DB::commit();
+            if($request->addEquipo == 'SI') {
+                $jugador = $this->addJugadorEquipo($request);
+                return ['estado' => $jugador['estado'], 'mensaje' => $jugador['mensaje']];
+            }
+            else{
+                return ['estado' => true];
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ['estado' => false, 'mensaje' => "Ha ocurrido el siguiente error: " . $e->getMessage()];
+        }
+    }
+
+    /**
+     * funcion encargada de validar la existencia de personas en el sistema como usuario registrado o persona externa.
+     *
+     * @return array
+     */
+    public function exisPersona(Request $request){
+        $persona = Persona::where("identificacion",$request->identificacion)->first();
+        if(!$persona){
+            $persona = PesonasExterna::where("identificacion",$request->identificacion)->first();
+        }
+
+        if($persona){
+            $torneo = Torneo::find($request->torneo);
+            if($torneo->genero == $persona->sexo){
+                $jugador = new Jugador();
+                $equipoJugador = $jugador->participaEnTorneo($request->torneo, $persona->identificacion);
+                if($equipoJugador != null){
+                    $data['bandera'] = false;
+                    $data['mensaje'] = $equipoJugador;
+                }
+                else{
+                    $data["bandera"]=true;
+                }
+//                $data["nombres"]= $persona->nombres;
+            }
+            else{
+                $data["bandera"] = false;
+                $data['mensaje'] = 'No sexo';
+                $data['sexo'] = ($torneo->genero == 'M')?'Masculino':'Femenino';
+            }
+            $data["nombres"]= $persona->nombres;
+        }
+        else{
+            $data["bandera"] = false;
+            $data['mensaje'] = 'No encontrado';
+        }
+        return $data;
+    }
+
+    public function addEquipoTorneo(Request $request)
+    {
+        $torneo = Torneo::find($request->torneo_id);
+        if($torneo!=null && $torneo->usuario_id == \Auth::user()->id) {
+
+            $usuario = new User();
+            $capitan = $usuario->capitanEnTorneo($torneo->id, $request->capitan);
+//            dd($capitan);
+
+            if($capitan == null){
+                DB::beginTransaction();
+                try{
+                    $equipo = new Equipo();
+                    $equipo->nombre = $request->equipo;
+                    $equipo->genero = $torneo->genero;
+                    $equipo->capitan_id = $request->capitan;
+                    $equipo->escudo_id = 1;
+                    $equipo->save();
+
+                    $equipoTorneo = new Equipos_torneo();
+                    $equipoTorneo->torneo_id = $torneo->id;
+                    $equipoTorneo->equipo_id = $equipo->id;
+                    $equipoTorneo->estado = 'A';
+                    $equipoTorneo->save();
+
+                    DB::commit();
+                    $equipoTorneo->getEquipo->getEscudo;
+                    return ['estado' => true, 'mensaje'=>$equipoTorneo];
+                }
+                catch(\Exception $e){
+                    DB::rollBack();
+                    return ['estado' => false,'mensaje' => "Ha ocurrido el siguiente error: " . $e->getMessage()];
+                }
+            }
+            else{
+                return ['estado' => false, 'mensaje' => "La persona seleccionada no puede ser capitan, pues ya participa en este torneo."];
+            }
+
+        }
+        else{
+            return ['estado' => false, 'mensaje' => "No tienes permisos para realizar esta acción!"];
+        }
+    }
+
+    public function generarCodigo(Request $request)
+    {
+        $torneo = Torneo::find($request->torneo_id);
+        if($torneo!=null && $torneo->usuario_id == \Auth::user()->id) {
+
+            $usuario = User::find($request->capitan);
+            $capitan = $usuario->capitanEnTorneo($torneo->id, $request->capitan);
+
+            $tieneCodigo = true;
+            foreach($torneo->getCodigosTorneo as $codigo){
+                if($codigo->usuario_id == $request->capitan){
+                    $tieneCodigo = false;
+                    break;
+                }
+            }
+
+            if($capitan == null && $tieneCodigo){
+                DB::beginTransaction();
+                try{
+                    $codigo = new Codigos_torneo();
+                    $codigo->torneo_id = $torneo->id;
+                    $codigo->codigo = $request->codigo;
+                    $codigo->estado = 'A';
+                    $codigo->usuario_id = $request->capitan;
+                    $codigo->save();
+                    DB::commit();
+
+                    MailController::enviarCodigo(["email"=>$usuario->email,"torneo"=>$torneo->nombre, "ruta"=>route("detalleTorneo",$torneo->id), "codigo"=>$request->codigo]);
+                    return ['estado' => true];
+                }
+                catch(\Exception $e){
+                    DB::rollBack();
+                    return ['estado' => false,'mensaje' => "Ha ocurrido el siguiente error: " . $e->getMessage()];
+                }
+            }
+            else{
+                return ['estado' => false, 'mensaje' => "No se puede invitar a esta persona como capitan de un equipo, pues ya participa en este torneo o ya tiene un codigo asignado."];
+            }
+
+        }
+        else{
+            return ['estado' => false, 'mensaje' => "No tienes permisos para realizar esta acción!"];
+        }
+    }
+
+    /**
+     * Retorna los escudos que aun no estan en uso en el torneo.
+     *
+     * @return array
+     */
+    public function getEscudosDisponibles(Request $request)
+    {
+        $torneo = Torneo::find($request->torneo_id);
+        if($torneo != null){
+            $arrayUsados = $this->getEscudosEnUso($torneo);
+                $disponibles = DB::table('escudos')
+                    ->whereNotIn('id', $arrayUsados)
+                    ->get();
+            return ['estado' => true, 'mensaje' => $disponibles];
+        }
+        else{
+            return ['estado' => false, 'mensaje' => "Torneo no valido! Intentalo de nuevo"];
+        }
+    }
+
+
+    public function getEscudosEnUso($torneo)
+    {
+        $arrayUsados = array();
+        foreach($torneo->getEquipos_torneo as $inscrito){
+            if($inscrito->estado == 'A'){
+                array_push($arrayUsados, $inscrito->getEquipo->escudo_id);
+            }
+        }
+        return $arrayUsados;
+    }
+
+    public function actualizarEscudo(Request $request)
+    {
+        $equipo = Equipo::find($request->equipo);
+        $escudo = Escudo::find($request->escudo);
+        if($equipo != null && $escudo != null){
+            if($equipo->capitan_id == \Auth::user()->id || $equipo->getEquipoTorneo->getTorneo->usuario_id == \Auth::user()->id) {
+                $escudosUsados = $this->getEscudosEnUso($equipo->getEquipoTorneo->getTorneo);
+                $cambiar = true;
+                foreach ($escudosUsados as $usado) {
+                    if ($usado == $request->escudo) {
+                        $cambiar = false;
+                        break;
+                    }
+                }
+                if ($cambiar){
+                    DB::beginTransaction();
+                    try {
+                        $equipo->escudo_id = $request->escudo;
+                        $equipo->save();
+                        DB::commit();
+                        return ['estado' => true, 'mensaje' => $escudo->url];
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        return ['estado' => false, 'mensaje' => "Ha ocurrido el siguiente error: " . $e->getMessage()];
+                    }
+                }
+                else
+                    return ['estado' => false, 'mensaje' => "El escudo seleccionado ya esta en uso por otro equipo, por favor selecciona uno diferente."];
+            }
+            else
+                return ['estado' => false, 'mensaje' => "No tienes suficientes permisos para realizar esta accion!"];
+        }
+        else
+            return ['estado' => false, 'mensaje' => "No tienes suficientes permisos para realizar esta accion!"];
+    }
+
+    public function UpdateEquipo(Request $request)
+    {
+        $torneo = Torneo::find($request->torneo);
+        if($torneo!=null && $torneo->usuario_id == \Auth::user()->id) {
+            $equipo = Equipo::find($request->equipo);
+            if($equipo!=null && $equipo->getEquipoTorneo->getTorneo->id==$torneo->id){
+                DB::beginTransaction();
+                try {
+                    $equipo->nombre = $request->nombre;
+                    $equipo->save();
+                    DB::commit();
+                    return ['estado' => true];
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return ['estado' => false, 'mensaje' => "Ha ocurrido el siguiente error: " . $e->getMessage()];
+                }
+            }
+            else
+                return ['estado' => false, 'mensaje' => "No tienes suficientes permisos sobre este equipo para realizar esta accion!"];
+        }
+        else
+            return ['estado' => false, 'mensaje' => "No tienes suficientes permisos para realizar esta accion!"];
+
+    }
+
+    public function addJugadorEquipo(Request $request)
+    {
+        $equipo = Equipo::find($request->equipo);
+        if($equipo != null){
+            if($equipo->capitan_id==\Auth::user()->id || $equipo->getEquipoTorneo->getTorneo->usuario_id==\Auth::user()->id){
+                DB::beginTransaction();
+                $respuesta = $this->insertJugador($request->identificacion, $equipo->id);
+                if($respuesta['estado'])
+                    DB::commit();
+                else
+                    DB::rollBack();
+                return ['estado' => $respuesta['estado'], 'mensaje' => $respuesta['mensaje']];
+            }
+            else
+                return ['estado' => false, 'mensaje' => "No tienes suficientes permisos para realizar esta accion!"];
+        }
+        else
+            return ['estado' => false, 'mensaje' => "Ha ocurrido un error interno, por favor intentalo mas tarde"];
+    }
+
+    public function insertJugador($identificacion, $equipo_id)
+    {
+        try {
+            $jugador = new Jugador();
+            $jugador->identificacion = $identificacion;
+            $jugador->equipo_id = $equipo_id;
+            $jugador->posicion = ' ';
+            $jugador->save();
+            return ['estado' => true, 'mensaje' => $jugador];
+        } catch (\Exception $e) {
+            return ['estado' => false, 'mensaje' => "Ha ocurrido el siguiente error: " . $e->getMessage()];
+        }
+    }
+
+    public function borrarJugadores(Request $request)
+    {
+//        dd($request->all());
+        $equipo = Equipo::find($request->equipo);
+        if($equipo != null){
+            if($equipo->capitan_id==\Auth::user()->id || $equipo->getEquipoTorneo->getTorneo->usuario_id==\Auth::user()->id){
+                $eliminados = array();
+                foreach($request->jugadores as $llave=>$jugador){
+                    DB::beginTransaction();
+                    try {
+                        Jugador::find($jugador)->delete();
+                        DB::commit();
+                        array_push($eliminados, $jugador);
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                    }
+                }
+
+                if(count($request->jugadores)==count($eliminados)){
+                    return ['estado' => true, 'mensaje' => 'Completo'];
+                }
+                else{
+                    return ['estado' => true, 'mensaje' => "Incompleta", 'eliminados' => $eliminados];
+                }
+            }
+            else
+                return ['estado' => false, 'mensaje' => "No tienes suficientes permisos para realizar esta accion!"];
+        }
+        else
+            return ['estado' => false, 'mensaje' => "Ha ocurrido un error interno, por favor intentalo mas tarde"];
+    }
+
+    public function inscribirEquipo(Request $request)
+    {
+        $codigo = Codigos_torneo::where('codigo', $request->codigo)
+                                ->where('torneo_id', $request->torneo)
+                                ->where('usuario_id', \Auth::user()->id)
+                                ->get();
+        if(count($codigo) != 0 && $codigo[0]->estado == 'A'){
+            $torneo = Torneo::find($request->torneo);
+
+            $ObjUsuario = new User();
+            $capitan = $ObjUsuario->capitanEnTorneo($torneo->id, $request->capitan);
+
+            $objJugador = new Jugador();
+            $jugador = $objJugador->participaEnTorneo($torneo->id, Auth::user()->getPersona->identificacion);
+
+            if($jugador == null){
+                if($capitan == null){
+                    $escudo = Escudo::find($request->escudo);
+                    if($escudo!= null){
+                        $disponible = true;
+                        $escudosUsados = $this->getEscudosEnUso($torneo);
+                        foreach($escudosUsados as $usado){
+                            if($usado == $escudo->id){
+                                $disponible = false;
+                                break;
+                            }
+                        }
+                        if($disponible){
+                            DB::beginTransaction();
+                            try {
+                                $equipo = new Equipo();
+                                $equipo->nombre = $request->nombreEquipo;
+                                $equipo->genero = $torneo->genero;
+                                $equipo->capitan_id = \Auth::user()->id;
+                                $equipo->escudo_id = $escudo->id;
+                                $equipo->save();
+
+                                $insertados = true;
+                                foreach (explode(",", $request->jugadores) as $jugador) {
+                                    $respuesta = $this->insertJugador($jugador, $equipo->id);
+                                    if(!$respuesta['estado'])
+                                        $insertados = false;
+                                }
+
+                                $equipo_torneo = new Equipos_torneo();
+                                $equipo_torneo->torneo_id = $torneo->id;
+                                $equipo_torneo->equipo_id = $equipo->id;
+                                $equipo_torneo->estado = 'A';
+                                $equipo_torneo->save();
+
+                                $codigo[0]->estado = 'I';
+                                $codigo[0]->save();
+                                DB::commit();
+
+                                if($insertados)
+                                    return ['estado' => true, 'mensaje' => $equipo_torneo, 'jugadores' => 'completos'];
+                                else
+                                    return ['estado' => true, 'mensaje' => $equipo_torneo, 'jugadores' => 'faltaron'];
+                            } catch (\Exception $e) {
+                                DB::rollBack();
+                                return ['estado' => false, 'mensaje' => "Ha ocurrido el siguiente error: " . $e->getMessage()];
+                            }
+                        }
+                        else
+                            return ['estado' => false, 'mensaje' => "El escudo seleccionado no esta disponible, por favor selecciona otra e intentalo de nuevo."];
+                    }
+                    else
+                        return ['estado' => false, 'mensaje' => "Escudo no valido, por favor intentalo de nuevo."];
+                }
+                else
+                    return ['estado' => false, 'mensaje' => "No puedes inscribir el equipo actual, pues ya eres propietario del equipo $jugador->nombre de este torneo."];
+            }
+            else
+                return ['estado' => false, 'mensaje' => "No puedes inscribir este equipo, pues ya participas como jugador del equipo $jugador->nombre en este torneo."];
+        }
+        else
+            return ['estado' => false, 'mensaje' => "El codigo que usas para inscribirte al torneo no es valido, por favor cambialo e intentalo de nuevo."];
+
+    }
 }
+

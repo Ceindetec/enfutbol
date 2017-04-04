@@ -39,7 +39,7 @@ Route::group(['middleware' => ['auth', 'superAdmin']], function () {
 
     Route::get('superTorneos','SuperAdminController@superTorneos')->name('superTorneos');
 
-    Route::get('autoCompleUser','SuperAdminController@autoCompleUser')->name('autoCompleUser');
+
 
 
 
@@ -82,23 +82,66 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('solicidarPago','TorneosController@solicidarPago')->name('solicidarPago');
 
 
-    Route::get('adminTorneos','TorneosController@index')->name('adminTorneos');
     Route::get('nuevoTorneo','TorneosController@torneoNuevo')->name('torneoNuevo');
     Route::post('insertTorneo','TorneosController@insertTorneo')->name('insertTorneo');
     Route::post('deleteTorneo','TorneosController@deleteTorneo')->name('deleteTorneo');
     Route::get('adminTorneo/{id}','TorneosController@adminTorneo')->name('adminTorneo');
     Route::post('updateTorneo','TorneosController@updateTorneo')->name('updateTorneo');
+    Route::post('addEquipoTorneo','TorneosController@addEquipoTorneo')->name('addEquipoTorneo');
+    Route::post('generarCodigo','TorneosController@generarCodigo')->name('generarCodigo');
 
     Route::post('aceptarSolicitud','TorneosController@aceptarSolicitud')->name('aceptarSolicitud');
     Route::post('rechazarSolicitud','TorneosController@rechazarSolicitud')->name('rechazarSolicitud');
 
     Route::post('iniciarTorneo','TorneosController@iniciarTorneo')->name('iniciarTorneo');
 
+
+    Route::post('getEscudosDisponibles','TorneosController@getEscudosDisponibles')->name('getEscudosDisponibles');
+    Route::post('actualizarEscudo','TorneosController@actualizarEscudo')->name('actualizarEscudo');
+    Route::post('UpdateEquipo','TorneosController@UpdateEquipo')->name('UpdateEquipo');
+    Route::post('addJugadorEquipo','TorneosController@addJugadorEquipo')->name('addJugadorEquipo');
+
+
     Route::get('adminEquipo/{id}','TorneosController@adminEquipo')->name('adminEquipo');
     //rutas para los torneos
     Route::get('adminTorneos/fase/{torneo_id}','TorneosController@adminFases')->name('adminFases');
 
+    Route::get('adminPlantillas','TorneosController@adminPlantillas')->name('adminPlantillas');
+    Route::post('getPlantilla','TorneosController@getPlantilla')->name('getPlantilla');
+    Route::post('addJugadorPlanilla','TorneosController@addJugadorPlanilla')->name('addJugadorPlanilla');
+    Route::post('delJugadorPlanilla','TorneosController@delJugadorPlanilla')->name('delJugadorPlanilla');
+    Route::post('nuevaPlantilla','TorneosController@nuevaPlantilla')->name('nuevaPlantilla');
+
+//    Route::get("prueba", function (){
+//        return view('torneos.planillas');
+//    });
+
+    Route::get('autoCompleUser','SuperAdminController@autoCompleUser')->name('autoCompleUser');
+
+
+    Route::get('inscribeTuEquipo','TorneosController@inscribeTuEquipo')->name('inscribeTuEquipo');
+    Route::post('inscribeTuEquipo','TorneosController@inscribeTuEquipo')->name('inscribeTuEquipo');
+    Route::post('addPersonaExterna','TorneosController@addPersonaExterna')->name('addPersonaExterna');
+    Route::post('exisPersona','TorneosController@exisPersona')->name('exisPersona');
+
+    Route::post('addJugadorEquipo','TorneosController@addJugadorEquipo')->name('addJugadorEquipo');
+    Route::post('borrarJugadores','TorneosController@borrarJugadores')->name('borrarJugadores');
+    Route::post('inscribirEquipo','TorneosController@inscribirEquipo')->name('inscribirEquipo');
+
+
+
+
+
 });
+
+
+Route::get('adminTorneos','TorneosController@index')->name('adminTorneos');
+Route::get('buscarTorneos','TorneosController@buscarTorneos')->name('buscarTorneos');
+Route::post('getTorneos','TorneosController@getTorneos')->name('getTorneos');
+Route::get('detalleTorneo/{torneo}','TorneosController@detalleTorneo')->name('detalleTorneo');
+
+
+
 
 
 Route::group(['middleware' => ['auth', 'jugador']], function () {
@@ -143,11 +186,7 @@ Route::post('completarRegistro', 'UsuariosController@completarRegistro')->name('
 Route::get('activaruser/{email}', 'UsuariosController@activarUser')->name('activarUser');
 
 
-Route::get("prueba", function (){
 
-    dd(\Auth::user());
-
-});
 
 
 /*Route::get('mapas', function(){

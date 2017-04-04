@@ -31,10 +31,12 @@
 
 </div>
 
-<h3>Bienvenido a Enfutbol.co</h3>
+<h3>Felicidades:</h3>
 
-<p>Gracias por preferirnos. Para iniciar a disfrutar de los beneficios de nuestra plataforma, es necesario que actives tu cuenta, por favor haz click en el siguiente enlace para continuar: </p>
+<p>Has sido invitado a participar en el torneo <b>{{$torneo}}</b>. Para continuar, es necesario inscribir tu equipo ingresando a nuestra plataforma o haciendo click en el siguiente enlace: </p>
 <p> <strong><a class="lin" href="{!! $ruta !!}">{!! $ruta !!}</a></strong></p>
+<br>
+<p>Posteriormente, ingresa el siguiente codigo <b>{{$codigo}}</b> cuando el sistema te lo solicite, para culminar el proceso de inscripcion.</p>
 <br>
 <p>Cordial Saludo.</p>
 <p><b>Equipo enFutbol.co</b></p>
